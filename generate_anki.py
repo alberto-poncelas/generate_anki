@@ -2,6 +2,8 @@
 import sys
 import genanki
 import random
+import os
+
 
 card_template = genanki.Model(
 	random.randrange(1 << 30, 1 << 31),
@@ -37,13 +39,18 @@ class Deck:
 
 
 
-if len(sys.argv)-1 != 2:
+if len(sys.argv)-1 != 1:
 	print("ERROR: "+str(len(sys.argv)-1) +" parameters found")
 	print("Usage: python3 generate_anki.py deck_name path/to/file")
 	exit()
 
-name = sys.argv[1]
-vocab_path = sys.argv[2]
+
+vocab_path = sys.argv[1]
+
+#Get the name
+[head, tail]= os.path.split(vocab_path) 
+name = os.path.splitext(tail)[0]
+
 
 
 #Load file
