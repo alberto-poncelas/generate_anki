@@ -25,12 +25,14 @@ card_template = genanki.Model(
 class Deck:
 	def __init__(self, name):
 		rand_id = random.randrange(1 << 30, 1 << 31)
+		self.id=rand_id
 		self.name = name
 		self.deck = genanki.Deck( rand_id, name)
 	#Add a pair of [question,answer] as a card to the deck
 	def add_card(self,QA):
 		[Q,A]=QA
-		card = genanki.Note(model=card_template,fields=[Q,A])
+		self.id=self.id+1
+		card = genanki.Note(model=card_template,fields=[Q,A],guid=self.id)
 		self.deck.add_note(card)
 	#Export the deck to a apkg file
 	def export(self):
