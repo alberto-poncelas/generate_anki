@@ -45,43 +45,44 @@ class Deck:
 parser = argparse.ArgumentParser(description='Convert a text file into an anki deck')
 parser.add_argument('vocab_path', metavar='file', type=str, help='input file')
 parser.add_argument('--sep', dest='separator', type=str, default="," , help='columns separator')
-
-
-
 args = parser.parse_args()
 
 
-vocab_path=args.vocab_path
-split_char=args.separator
+
+
+vocab_path = args.vocab_path
+split_char = args.separator
+name = os.path.split(vocab_path)[-1]
 
 
 
-#Get the name
-[head, tail]= os.path.split(vocab_path) 
-name = os.path.splitext(tail)[0]
+def main():
+	#Load file
+	cards_list=[]
+	file_error=False
+	idx=0
+	with open(vocab_path) as f:
+		for raw_line in f:
+			idx=idx+1
+			QA_pair=raw_line.strip().split(split_char)
+			if len(QA_pair)!=2:
+				print("ERROR: Line "+str(idx) +" does not have two fields")
+				file_error=True
+			cards_list.append(QA_pair)
+
+	if file_error:
+		sys.exit("Process finished with errors")
+
+	#Create deck and add cards
+	deck=Deck(name)
+	for card in cards_list:
+		deck.add_card(card)
+	deck.export()
+
+	print("SUCCESS: "+name+".apkg file created!")
 
 
 
-#Load file
-with open(vocab_path) as f:
-	raw_vocab = f.readlines()
 
-
-
-cards_list=[] 
-for idx in range(len(raw_vocab)):
-	QA_pair=raw_vocab[idx].split(split_char)
-	if len(QA_pair)!=2:
-		print("ERROR: Line "+str(idx) +" does not have two fields")
-	cards_list.append(QA_pair)
-
-#Create deck and add cards
-deck=Deck(name)
-for card in cards_list:
-	deck.add_card(card)
-
-
-deck.export()
-
-
-print("SUCCESS: "+name+".apkg file created!")
+if __name__ == "__main__":
+	main()
