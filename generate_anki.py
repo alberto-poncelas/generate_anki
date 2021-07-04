@@ -3,6 +3,7 @@ import sys
 import genanki
 import random
 import os
+import argparse
 
 
 card_template = genanki.Model(
@@ -41,13 +42,19 @@ class Deck:
 
 
 
-if len(sys.argv)-1 != 1:
-	print("ERROR: "+str(len(sys.argv)-1) +" parameters found")
-	print("Usage: python3 generate_anki.py deck_name path/to/file")
-	exit()
+parser = argparse.ArgumentParser(description='Convert a text file into an anki deck')
+parser.add_argument('vocab_path', metavar='file', type=str, help='input file')
+parser.add_argument('--sep', dest='separator', type=str, default="," , help='columns separator')
 
 
-vocab_path = sys.argv[1]
+
+args = parser.parse_args()
+
+
+vocab_path=args.vocab_path
+split_char=args.separator
+
+
 
 #Get the name
 [head, tail]= os.path.split(vocab_path) 
@@ -60,19 +67,13 @@ with open(vocab_path) as f:
 	raw_vocab = f.readlines()
 
 
-#Try different characters to find the separator
-def find_split_char(raw_vocab):
-	vocab_size=len(raw_vocab)
-	split_char_candidates=[",","\t",";","|"]
-	for ch in split_char_candidates:
-		if ([x.count(ch) for x in raw_vocab] == [1]*vocab_size):
-			return ch
-	return ","
 
-split_char=find_split_char(raw_vocab)
-cards_list=[x.strip().split(split_char) for x in raw_vocab]
-
-
+cards_list=[] 
+for idx in range(len(raw_vocab)):
+	QA_pair=raw_vocab[idx].split(split_char)
+	if len(QA_pair)!=2:
+		print("ERROR: Line "+str(idx) +" does not have two fields")
+	cards_list.append(QA_pair)
 
 #Create deck and add cards
 deck=Deck(name)
