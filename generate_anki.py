@@ -45,14 +45,32 @@ class Deck:
 parser = argparse.ArgumentParser(description='Convert a text file into an anki deck')
 parser.add_argument('vocab_path', metavar='file', type=str, help='input file')
 parser.add_argument('--sep', dest='separator', type=str, default="," , help='columns separator')
+parser.add_argument('--front',  dest='front_field', nargs='+', help='index of the columns to be in the front of the card (optional)')
+parser.add_argument('--back',  dest='back_field', nargs='+', help='index of the columns to be in the front of the card (optional)')
 args = parser.parse_args()
 
 
 
 
 vocab_path = args.vocab_path
-split_char = args.separator
 name = os.path.split(vocab_path)[-1]
+
+split_char = args.separator
+if split_char=="\\t":
+	split_char = "\t" 
+
+
+#Get the index of the columns of front and back of the card
+if (args.front_field is None and args.back_field is None):
+	num_columns=2
+	front_field=[0]
+	back_field=[1]
+elif (args.front_field is not None and args.back_field is not None):
+	front_field=[int(x) for x in args.front_field]
+	back_field=[int(x) for x in args.back_field]
+	num_columns=len(front_field)+len(back_field)
+else:
+	sys.exit("The arguments front and back should be used together")
 
 
 
@@ -65,10 +83,13 @@ def main():
 		for raw_line in f:
 			idx=idx+1
 			QA_pair=raw_line.strip().split(split_char)
-			if len(QA_pair)!=2:
-				print("ERROR: Line "+str(idx) +" does not have two fields")
+			if len(QA_pair)!=num_columns:
+				print("ERROR: Line "+str(idx) +" does not have "+str(num_columns)+" fields")
 				file_error=True
-			cards_list.append(QA_pair)
+			else:
+				Q=" --- ".join([QA_pair[x].strip() for x in front_field ])
+				A=" --- ".join([QA_pair[x].strip() for x in back_field ])
+				cards_list.append([Q,A])
 
 	if file_error:
 		sys.exit("Process finished with errors")
