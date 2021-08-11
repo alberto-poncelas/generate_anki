@@ -18,3 +18,4 @@ If the file contains several columns it is possible to choose which will be in t
 python3 generate_anki.py path/to/file --sep "\t" --front 0 2 --back 3
 ```
 
+

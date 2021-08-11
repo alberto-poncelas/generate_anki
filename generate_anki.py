@@ -83,7 +83,7 @@ def main():
 		for raw_line in f:
 			idx=idx+1
 			QA_pair=raw_line.strip().split(split_char)
-			if len(QA_pair)!=num_columns:
+			if len(QA_pair) < num_columns:
 				print("ERROR: Line "+str(idx) +" does not have "+str(num_columns)+" fields")
 				file_error=True
 			else:
