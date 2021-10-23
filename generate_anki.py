@@ -44,7 +44,7 @@ class Deck:
 
 parser = argparse.ArgumentParser(description='Convert a text file into an anki deck')
 parser.add_argument('vocab_path', metavar='file', type=str, help='input file')
-parser.add_argument('--sep', dest='separator', type=str, default="," , help='columns separator')
+parser.add_argument('--sep', dest='separator', type=str, default="\t" , help='columns separator')
 parser.add_argument('--front',  dest='front_field', nargs='+', help='index of the columns to be in the front of the card (optional)')
 parser.add_argument('--back',  dest='back_field', nargs='+', help='index of the columns to be in the front of the card (optional)')
 args = parser.parse_args()
