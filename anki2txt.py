@@ -42,29 +42,29 @@ def write_rows(rows,filename):
 
 
 def get_name(anki_path):
-    name = os.path.basename(anki_path)
-    name = name.replace(".apkg","") + ".txt"
+    #name = os.path.basename(anki_path)
+    #name = name.replace(".apkg","") + ".cards.txt"
+    name = anki_path.replace(".apkg","") + ".cards.txt"
     return name
 
 
 
 
-parser = argparse.ArgumentParser(description='Convert a text file into an anki deck')
-parser.add_argument('anki_deck', metavar='file', type=str, help='input file')
-args = parser.parse_args()
-
-
-
-def main():
-    rows=load_anki(args.anki_deck)
-    name = get_name(args.anki_deck)
+def anki2txt(anki_deck):
+    rows=load_anki(anki_deck)
+    name = get_name(anki_deck)
     write_rows(rows,name)
     print("SUCCESS: "+name+" file created!")
 
 
 
+
+
 if __name__ == "__main__":
-	main()
+    parser = argparse.ArgumentParser(description='Convert a text file into an anki deck')
+    parser.add_argument('anki_deck', metavar='file', type=str, help='input file')
+    args = parser.parse_args()
+    anki2txt(args.anki_deck)
 
 
 

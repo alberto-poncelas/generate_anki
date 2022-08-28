@@ -2,6 +2,7 @@
 import argparse
 import requests
 from bs4 import BeautifulSoup
+import anki2txt
 
 
 
@@ -28,18 +29,24 @@ def download_deck(url_deck,save_path="./"):
 
 
 
-parser = argparse.ArgumentParser(description='Convert a text file into an anki deck')
-parser.add_argument('url_deck', metavar='file', type=str, help='input file')
-args = parser.parse_args()
 
 
 
-def main():
-    deck_path = download_deck(args.url_deck,save_path="./")
+
+def get_deck(url_deck):
+    deck_path = download_deck(url_deck,save_path="./")
     print("SUCCESS: "+deck_path+" file obtained!")
+    return deck_path
 
 
 
 if __name__ == "__main__":
-	main()
+    parser = argparse.ArgumentParser(description='Convert a text file into an anki deck')
+    parser.add_argument('url_deck', metavar='file', type=str, help='input file')
+    parser.add_argument('--only_text', action='store_true', default=False,  help='Flag to extract the text')
+    args = parser.parse_args()
+    deck_path = get_deck(args.url_deck)
+    if args.only_text:
+        print("Converting to text...")
+        anki2txt.anki2txt(deck_path)
 
