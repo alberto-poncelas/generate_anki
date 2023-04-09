@@ -2,7 +2,9 @@
 import argparse
 import requests
 from bs4 import BeautifulSoup
-import anki2txt
+import tempfile
+import sqlite3
+from zipfile import ZipFile
 
 
 
@@ -21,32 +23,46 @@ def download_deck(url_deck,save_path="./"):
         deck_form["name"]: deck_form["value"]
     }
     r = requests.post(dwld_url,data=data)
-    #get deck
+    #Get deck
     deck_file = requests.get(r.url)
     open(deck_path, 'wb').write(deck_file.content)
-    return deck_path
-
-
-
-
-
-
-
-
-def get_deck(url_deck):
-    deck_path = download_deck(url_deck,save_path="./")
     print("SUCCESS: "+deck_path+" file obtained!")
     return deck_path
+
+
+
+
+def anki2txt(anki_deck):
+    name = anki_deck.replace(".apkg","") + ".cards.txt"
+    #Unzip and read and save in a temp file
+    with ZipFile(anki_deck, 'r') as f:
+        file = f.read('collection.anki2')
+    tempdir = tempfile.TemporaryDirectory()
+    TEMP_DB = tempdir.name +'/temp_anki_db'
+    with open(TEMP_DB, 'wb') as f:
+        f.write(file)
+    #Load from temp database
+    db_conn = sqlite3.connect(TEMP_DB)
+    cur = db_conn.cursor()
+    cur.execute("SELECT flds FROM notes")
+    rows = cur.fetchall()  
+    #Remove temp file 
+    tempdir.cleanup()
+    with open(name, 'w') as f:
+        for r in rows:
+            line="\t".join([x.replace("\t"," ").replace("\x1f","\t") for x in r])
+            _ = f.write(line + '\n')
+    print("SUCCESS: "+name+" file created!")
 
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Convert a text file into an anki deck')
     parser.add_argument('url_deck', metavar='file', type=str, help='input file')
-    parser.add_argument('--only_text', action='store_true', default=False,  help='Flag to extract the text')
+    parser.add_argument('--text', '-t', action='store_true', default=False,  help='Flag to extract the text')
     args = parser.parse_args()
-    deck_path = get_deck(args.url_deck)
-    if args.only_text:
+    deck_path = download_deck(args.url_deck)
+    if args.text:
         print("Converting to text...")
-        anki2txt.anki2txt(deck_path)
+        anki2txt(deck_path)
 
